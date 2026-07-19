@@ -106,25 +106,28 @@ Task: classify price direction `horizon=5` minutes ahead, using a `window=60`-mi
   <img src="images/1440_profit_first.jpg" alt="-" width="240" />
 </div>
 
-### Observation 
+### Evaluation
 
 `trains_loss` ~ 0.08 at the end of training
 
-First evaluation shows `~53%` winrate with total profit of 260 points. But after a few another testings average winrate drops to `~46%`
+First evaluation shows `~53%` winrate with total profit of 260 points. But after a few another testings average winrate drops to `~50%` and `~46%`
 
 Even with winrate of 46% model sometimes can predict _profitably_. I assume this profitable prediction just a deviation and its depends oт tested intervals
 
-<div align="center">
-<img src="images/1440_profit_1.png" alt="-" width="350" />
-<img src="images/1440_winrate_1.png" alt="-" width="350" />
-</div>
+
+|  | Profit | Winrate | 
+| :---------: | :---------: | :----------: |
+| First Test | <img src="images/1440_profit_1.png" width=370></img> | <img src="images/1440_winrate_1.png" width=360></img> | 
+| Second Test | <img src="images/1440_profit_2.png" width=370></img> | <img src="images/1440_winrate_2.png" width=360></img> | 
+
+
 
 
 ## Second & Third Models
 
-**Dataset:** ~500k minute-level synthetic candles (`gauss + student_t`, `sigma=0.046`, `df=23`), 80/20 time-based train/val split.
+**Dataset:** 518400 minutes of synthetic candles (`gauss + student_t`, `sigma=0.046`, `df=23`), 80/20 time-based train/val split.
 
-**Training:** 60 epochs, Adam (`lr=1e-3`), CrossEntropyLoss. Early stopping wasn't even triggered — metrics flatlined by epoch 12.
+**Training:** 60 epochs, Adam (`lr=1e-3`), CrossEntropyLoss.
 
 ### Observation 
 
@@ -146,6 +149,10 @@ entropy(label_distribution) ≈ 0.7328
 ```
 
 This matched the loss the model got stuck at **exactly**. In addition, the model's prediction distribution on the validation set closely mirrored the unconditional label distribution, regardless of the specific input window.
+
+### Evalluation
+
+First test, same intervals as the for 1440-m model
 
 ### Conclusion from the observation
 
