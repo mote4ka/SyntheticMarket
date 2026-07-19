@@ -59,7 +59,25 @@ The generator went through several iterations: `uniform` → `gauss` → `gauss 
 | Unifrom | Gauss | Gauss + Student T |
 
 
-### Comparison of different `body_sigma` and `wick_df` values on same seed
+### Comparison of different `sigma` and `df` values on same seed
+
+`body_sigma` determines the range of each candle; increasing this parameter increases volatility.
+
+`wick_sigma` increases the size of the wicks on each candle; at higher values, the chart looks more like that of a low-cap coin.
+
+`wick_df` determines the dispersion of the wicks. The lower the value, the more frequently anomalies in the form of huge wicks will appear; at a value of 25, the distribution is almost indistinguishable from a Gaussian distribution.
+
+### `wick_sigma` examples
+
+| ![](images/gauss_student.png) | ![](images/wick_sigma_01.png) |
+|:---:|:---:|
+| 0.02 | 0.1 |
+
+### `wick_df` examples
+
+| ![](images/gauss_student.png) | ![](images/wick_df_2.png) | ![](images/wick_df_1.png) |
+|:---:|:---:|:---:|
+| 5+ | 2 | 1 |
 
 ### Model
 
@@ -77,13 +95,38 @@ Task: classify price direction `horizon=5` minutes ahead, using a `window=60`-mi
 
 ---
 
-## Experiment and result
 
-**Dataset:** ~500k minute-level synthetic candles (`student_t`, `sigma=0.046`, `df=23`), 80/20 time-based train/val split.
+## First Model
+
+**Dataset:** ~1440 minutes of synthetic candles (`gauss + student_t`, `sigma=0.046`, `df=23`), 80/20 time-based train/val split.
+
+**Training:** 450 epochs, Adam (`lr=1e-3`), CrossEntropyLoss.
+
+<div style="float: right; margin-right: 20px;">
+  <img src="images/1440_profit_first.jpg" alt="-" width="240" />
+</div>
+
+### Observation 
+
+`trains_loss` ~ 0.08 at the end of training
+
+First evaluation shows `~53%` winrate with total profit of 260 points. But after a few another testings average winrate drops to `~46%`
+
+Even with winrate of 46% model sometimes can predict _profitably_. I assume this profitable prediction just a deviation and its depends oт tested intervals
+
+<div align="center">
+<img src="images/1440_profit_1.png" alt="-" width="350" />
+<img src="images/1440_winrate_1.png" alt="-" width="350" />
+</div>
+
+
+## Second & Third Models
+
+**Dataset:** ~500k minute-level synthetic candles (`gauss + student_t`, `sigma=0.046`, `df=23`), 80/20 time-based train/val split.
 
 **Training:** 60 epochs, Adam (`lr=1e-3`), CrossEntropyLoss. Early stopping wasn't even triggered — metrics flatlined by epoch 12.
 
-### Observation
+### Observation 
 
 ```
 Epoch 12: train_loss=0.7328, val_acc=0.4929, val_f1=0.2201
