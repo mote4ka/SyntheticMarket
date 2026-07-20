@@ -30,19 +30,20 @@ import numpy as np
 def prepare_features_and_labels(df, horizon=5, flat_threshold=0.001):
     df = df.copy()
     
-    # ВМЕСТО pct_change() (деление на close) — просто разность
-    df["return"] = df["close"].diff() # абсолютная разность, не относительная
+    # Absolute price difference instead of pct_change() (no division by close)
+    df["return"] = df["close"].diff()
     
-    # ВМЕСТО деления на close — используем rolling std как масштаб
+    # Use rolling std as the normalization scale instead of dividing by close
     rolling_scale = df["close"].rolling(60).std() + 1e-8
     
     df["high_low_range"] = (df["high"] - df["low"]) / rolling_scale
     df["body"] = (df["close"] - df["open"]) / rolling_scale
     
-    df["volume_norm"] = (df["volume"] - df["volume"].rolling(60).mean()) / (df["volume"].rolling(60).std() + 1e-8)
+    #df["volume_norm"] = (df["volume"] - df["volume"].rolling(60).mean()) / (df["volume"].rolling(60).std() + 1e-8)
     df["volatility_20"] = df["return"].rolling(20).std()
     
-    future_return = df["close"].shift(-horizon) - df["close"]   # тоже абсолютная разность, не относительная
+    # Also an absolute difference, not relative
+    future_return = df["close"].shift(-horizon) - df["close"]
     
     def label_fn(x):
         if x > flat_threshold:
@@ -53,7 +54,11 @@ def prepare_features_and_labels(df, horizon=5, flat_threshold=0.001):
             return 1
     
     df["label"] = future_return.apply(label_fn)
+    
+    #print(df.isna().sum())
+    #print(f"Before dropna: {len(df)}")
     df = df.dropna().reset_index(drop=True)
+    #print(f"After dropna: {len(df)}")
     return df
 
-feature_cols = ["return", "high_low_range", "body", "volume_norm", "volatility_20"]
+feature_cols = ["return", "high_low_range", "body", "volatility_20"]

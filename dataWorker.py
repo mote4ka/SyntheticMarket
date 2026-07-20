@@ -47,3 +47,10 @@ def getRandomIntervalData(ticker:str, duration:int=120, normalize:bool = False) 
     df = getOHLC(ticker, start, end, normalize=normalize)
     
     return start,end,duration,df
+
+
+def normalizeDataFrame(df: pd.DataFrame) -> pd.DataFrame:
+    base_price = df.iloc[0]['open']
+    df[['open', 'high', 'close', 'low']] = (df[['open', 'high', 'close', 'low']] - base_price) / base_price * 100
+    
+    return df
