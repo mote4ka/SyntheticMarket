@@ -102,9 +102,6 @@ Task: classify price direction `horizon=5` minutes ahead, using a `window=60`-mi
 
 **Training:** 450 epochs, Adam (`lr=1e-3`), CrossEntropyLoss.
 
-<div style="float: right; margin-right: 20px;">
-  <img src="images/1440_profit_first.jpg" alt="-" width="240" />
-</div>
 
 ### Evaluation
 
@@ -117,8 +114,8 @@ Even with winrate of 46% model sometimes can predict _profitably_. I assume this
 
 |  | Profit | Winrate | 
 | :---------: | :---------: | :----------: |
-| First Test | <img src="images/1440_profit_1.png" width=370></img> | <img src="images/1440_winrate_1.png" width=360></img> | 
-| Second Test | <img src="images/1440_profit_2.png" width=370></img> | <img src="images/1440_winrate_2.png" width=360></img> | 
+| First Test | <img src="images/1440/1440_profit_1.png" width=370></img> | <img src="images/1440/1440_winrate_1.png" width=360></img> | 
+| Second Test | <img src="images/1440/1440_profit_2.png" width=370></img> | <img src="images/1440/1440_winrate_2.png" width=360></img> | 
 
 
 
