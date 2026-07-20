@@ -12,7 +12,7 @@ def getOHLC(ticker:str, start: int, end:int, normalize:bool = False) -> pd.DataF
         "end": end,
         "limit": 1000
     }
-
+ 
     req = requests.get(url, params)
 
     data = req.json().get('result').get('list')
@@ -27,7 +27,7 @@ def getOHLC(ticker:str, start: int, end:int, normalize:bool = False) -> pd.DataF
     # timestamp -> datetime
     df["timestamp"] = pd.to_datetime(df["timestamp"].astype("int64"), unit="ms")
 
-    df = df.sort_values('timestamp')
+    df = df.sort_values('timestamp').reset_index(drop=True)
     df['volume'] = 1
     
     if normalize:
