@@ -86,7 +86,7 @@ LSTMClassifier(
 )
 ```
 
-Task: classify price direction `horizon=5` minutes ahead, using a `window=60`-minute context.
+Task: classify price direction `horizon=5` minutes ahead, using a `window=120`-minute context.
 
 ---
 

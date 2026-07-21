@@ -19,7 +19,7 @@ class LSTMClassifier(nn.Module):
 
     def forward(self, x):
         out, (h_n, c_n) = self.lstm(x)      # out: (batch, seq_len, hidden_size)
-        last_hidden = out[:, -1, :]          # берём последний timestep
+        last_hidden = out[:, -1, :]    
         return self.fc(last_hidden)
 
 
