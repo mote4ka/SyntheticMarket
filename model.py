@@ -28,19 +28,19 @@ import pandas as pd
 import numpy as np
 
 def prepare_features_and_labels(df, horizon=5, flat_threshold=0.001):
-    df = df.copy()
     
+    df = df.copy()
     # Absolute price difference instead of pct_change() (no division by close)
     df["return"] = df["close"].diff()
     
-    # Use rolling std as the normalization scale instead of dividing by close
-    rolling_scale = df["close"].rolling(60).std() + 1e-8
+    # Use rolling std as the normalization scale instead of dividing by close (changed from 60 to 20)
+    rolling_scale = df["close"].rolling(20, min_periods=1).std() + 1e-8
     
     df["high_low_range"] = (df["high"] - df["low"]) / rolling_scale
     df["body"] = (df["close"] - df["open"]) / rolling_scale
     
-    #df["volume_norm"] = (df["volume"] - df["volume"].rolling(60).mean()) / (df["volume"].rolling(60).std() + 1e-8)
-    df["volatility_20"] = df["return"].rolling(20).std()
+    
+    df["volatility_20"] = df["return"].rolling(10, min_periods=1).std()
     
     # Also an absolute difference, not relative
     future_return = df["close"].shift(-horizon) - df["close"]

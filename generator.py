@@ -20,7 +20,7 @@ def distribution(sigma=0.2, mode="gauss", df=3, high=None):
 
 def generateSyntheticChart(minutes:int = 125, seed=-1):
     if seed == -1:
-        seed = random.randint(1, 2**20)
+        seed = int(np.random.default_rng().integers(0,2**23))
 
     # set seed
     random.seed(seed)
@@ -34,9 +34,6 @@ def generateSyntheticChart(minutes:int = 125, seed=-1):
 
     data = [0]*minutes
     base_price = 0
-
-    def generateSyntheticChart(minutes:int = 125):
-        pass
 
     for i in range(minutes):
         timestamp = (1784206800 + 60*i)*1000
