@@ -29,12 +29,7 @@ More specifically, two sub-hypotheses were tested:
 
 data/synthetic/     → generated datasets (parquet), many independent seeds
 data/real/          → real exchange data, held out to check the reality gap
-
-models/
-  lstm_1440_0046_23.pt
-  lstm_172800_0046_23.pt
-  lstm_518400_0046_23.pt
-
+models/*
 dataset-generation.ipynb    → showcase of OHLC data generation
 train.ipynb                 → training model
 valuation.ipynb             → testing model in real conditions (100 random BTCUSDT intervals)
@@ -83,7 +78,7 @@ The generator went through several iterations: `uniform` → `gauss` → `gauss 
 
 ```python
 LSTMClassifier(
-    n_features=5,     # return, high_low_range, body, volume_norm, volatility_20
+    n_features=4,     # return, high_low_range, body, volume_norm
     hidden_size=64,
     num_layers=2,
     num_classes=3,    # down / flat / up
@@ -118,11 +113,21 @@ Even with winrate of 46% model sometimes can predict _profitably_. I assume this
 | Second Test | <img src="images/1440/1440_profit_2.png" width=370></img> | <img src="images/1440/1440_winrate_2.png" width=360></img> | 
 
 
+Previously, I used a suboptimal method for calculating profit—specifically, `close_price - open_price`.
+The new strategy adds stop-loss and take-profit levels.
+Risk on the pseudo-trade 10 points; Risk/Reward: 5.
+
+I also changed the testing strategy. Instead of using 100 random intervals obtained in real-time, I save the BTCUSDT history for seven months (and later, a full year) once, and then iterate through that history during the test.
 
 
-## Second & Third Models
+<div align="center">
+<img src="images/1440/profit_risk10_rr5_1.png" width=370></img>
+<img src="images/1440/winrate_risk10_rr5_1.png" width=360></img>
+</div>
 
-**Dataset:** 518400 minutes of synthetic candles (`gauss + student_t`, `sigma=0.046`, `df=23`), 80/20 time-based train/val split.
+## Second Model
+
+**Dataset:** 518400 minutes of synthetic candles. Same stucture as 1440-m model
 
 **Training:** 60 epochs, Adam (`lr=1e-3`), CrossEntropyLoss.
 
@@ -147,9 +152,6 @@ entropy(label_distribution) ≈ 0.7328
 
 This matched the loss the model got stuck at **exactly**. In addition, the model's prediction distribution on the validation set closely mirrored the unconditional label distribution, regardless of the specific input window.
 
-### Evalluation
-
-First test, same intervals as the for 1440-m model
 
 ### Conclusion from the observation
 
@@ -158,7 +160,33 @@ The model found the **global optimum** — and that genuinely is the best achiev
 **H1 is rejected** for this generator: the LSTM cannot extract signal that isn't there.
 **H2 was not meaningfully testable** — moving from uniform → gauss → student_t changed the shape of the noise but added no autocorrelation or memory, so direction-prediction quality did not improve on any noise variant; all of them converged to the same entropy floor.
 
----
+
+
+
+## Third & Next Models
+
+**Dataset:** 346560/960000/3360000 minutes of synthetic candles with new structure, details below
+
+**Training:** 50/400 epochs
+
+### New DataSet structure
+
+Instead of using a single huge chart, a large number of small charts are generated, each spanning 125 minutes (120 for input and 5 for prediction verification).
+
+I also added checkpoints during model training.
+
+### Evaluation
+
+<div align="center"><b>Benchmark results</b></div>
+
+<div align="center">
+<img src="images/3360000/profit_risk10_rr5_1.png" width=360></img>
+<img src="images/3360000/winrate_risk10_rr5_1.png" width=357></img>
+</div>
+
+This is the profit from the model trained on 346,560 minutes. Profit and win rate have increased significantly compared to the previous model, but there is a catch: **the results are exactly the same for all the other models** (960,000/3,360,000).
+
+Every time, the model predicted `up` with the same probability of `50.34128`%. It discovered that `up` was the most frequent class in the training data and simply learned to always predict it, ignoring the input.
 
 ## What this means for using synthetic data in trading
 
@@ -186,14 +214,13 @@ In other words: **candles that look realistic ≠ candles that are predictable.*
 - [ ] Add GARCH(1,1)-like volatility dynamics to the generator
 - [ ] Add a weak momentum/mean-reversion component and check whether predictability emerges
 - [ ] Compare LSTM / TCN / PatchTST on the same enriched generator
-- [ ] Run the final model on `real_holdout` data and explicitly measure the reality gap
 - [ ] Reframe the task as volatility prediction instead of direction (a more realistic target for random-walk-like processes)
 
 ---
 
 ## Stack
 
-Python · PyTorch · pandas · pyarrow/parquet · scikit-learn (metrics)
+Python · PyTorch · pandas · parquet · scikit-learn (metrics) · numpy · matplotlib · mplfinance
 
 ---
 

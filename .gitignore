@@ -3,3 +3,5 @@ data/
 __pycache__/
 .venv/
 *.rar
+models/backups/
+models/checkpoints/
